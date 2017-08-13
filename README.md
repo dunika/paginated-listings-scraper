@@ -1,1 +1,3 @@
-# pagination-scraper
+# Pagination Scraper
+
+Extract data from paginated web pages
