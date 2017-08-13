@@ -1,3 +1,3 @@
-# Pagination Scraper
+# Paginated Listings Scraper
 
-Extract data from paginated web pages
+Extract listings data from paginated web pages
