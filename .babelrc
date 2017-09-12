@@ -1,4 +1,4 @@
 {
-  "plugins": ["lodash"],
+  "plugins": ["lodash", "transform-runtime"],
   "presets": [ "es2015", "stage-0" ]
 }
