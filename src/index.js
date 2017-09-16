@@ -1,44 +1,50 @@
 import { URL } from 'url';
 
 import request from 'request-promise-native';
+import { isNumber, isFunction } from 'lodash/fp';
 
 import debug from './utils/debug';
 import extractData from './extract-data';
 
 /**
+* Recursively calls its inner function to extract data from each page
 * @param  {Object} options
 * @param  {string} options.origin
-* @param  {number} options.maximiumDepth
+* @param  {number} [options.maximiumDepth]
+* @param {Function} [options.terminate]
 * @returns {Function} getListing
 */
 
-function getListings({ origin, maximiumDepth, ...otherOptions }) {
-  /**
-  * Recursively extractes data from each page
-  * @param  {string} path
-  * @param  {number} depth
-  * @returns {Array}
-  */
-
-  const getListing = async (path, depth = 1) => {
+function getListings({
+  maximiumDepth,
+  origin,
+  shouldReturnDataOnError = false,
+  terminate,
+  ...otherOptions
+}) {
+  if (!isNumber(maximiumDepth) && !isFunction(terminate)) {
+    throw Error('Please provide either a maximiumDepth or a a terminate function');
+  }
+  const getListing = async (url, depth = 1) => {
     debug(`Current page depth: ${depth}`);
-    if (!isNaN(maximiumDepth) && depth > maximiumDepth) {
+    if (isNumber(maximiumDepth) && depth > maximiumDepth) {
       return [];
     }
     try {
-      const url = `${origin}${path}`;
       debug(`Getting listings from ${url}`);
       const html = await request(url);
-      const { nextPageUrl, data } = await extractData({ html, origin, ...otherOptions });
+      const { nextPageUrl, data } = await extractData({ html, origin, terminate, ...otherOptions });
       if (nextPageUrl) {
         const nextData = await getListing(nextPageUrl, depth + 1);
-        return [...data, ...nextData];
+        return [...data && data, ...nextData];
       }
-      debug('No url for found for next page ');
       return data;
     } catch (error) {
       debug(`ERROR: getListings: ${error.message}`);
-      return [];
+      if (shouldReturnDataOnError) {
+        return [];
+      }
+      throw new Error(error);
     }
   };
   return getListing;
@@ -51,13 +57,33 @@ function getListings({ origin, maximiumDepth, ...otherOptions }) {
 * @returns {void}
 */
 
-export default function scrape(options) {
-  const { url, ...otherOptions } = options;
-  const { origin, pathname, search } = new URL(url);
-  getListings({ origin, ...otherOptions })(`${pathname}${search}`);
-}
+const scrape = async function scrape(options) {
+  try {
+    const { url, ...otherOptions } = options;
+    const { origin } = new URL(url);
+    const data = await getListings({ origin, ...otherOptions })(url);
+    if (!data) {
+      debug('scrape - no data found');
+    } else {
+      debug(`scrape - finished with ${data.length} results`);
+    }
+    return data;
+  } catch (error) {
+    debug(`ERROR: scrape: ${error.message}`);
+    throw new Error(error);
+  }
+};
+
 
 scrape({
-  parentSelector: '.row.result',
-  url: 'https://www.indeed.co.uk/jobs?l=county+Fermanagh&sort=date',
+  dataSelector: {
+    text: '.text-block',
+    title: 'h3',
+  },
+  filter: '.row.blank',
+  maximiumDepth: 3,
+  nextPageSelector: 'a.next-page',
+  parentSelector: '.row',
+  terminate: (element, $) => element.find($('.bad-apple')).length,
+  url: 'http://paginatedlisitings.com',
 });
