@@ -14,6 +14,8 @@ For debugging set the `DEBUG=paginated-listings-scraper` environment variable
 ## Example usage
 
 ```
+  import scrape from 'paginated-listings-scraper';
+
   const options = {
     dataSelector: {
       text: '.text-block',
@@ -28,7 +30,7 @@ For debugging set the `DEBUG=paginated-listings-scraper` environment variable
   };
 
   const data = await scrape(options);
-
+// returns a promise
 // data = [{ title: 'Old McDonald', text: 'Had a farm', } ...]
 ```
 
