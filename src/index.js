@@ -57,7 +57,7 @@ function getListings({
 * @returns {void}
 */
 
-const scrape = async function scrape(options) {
+export default async function scrape(options) {
   try {
     const { url, ...otherOptions } = options;
     const { origin } = new URL(url);
@@ -72,18 +72,4 @@ const scrape = async function scrape(options) {
     debug(`ERROR: scrape: ${error.message}`);
     throw new Error(error);
   }
-};
-
-
-scrape({
-  dataSelector: {
-    text: '.text-block',
-    title: 'h3',
-  },
-  filter: '.row.blank',
-  maximiumDepth: 3,
-  nextPageSelector: 'a.next-page',
-  parentSelector: '.row',
-  terminate: (element, $) => element.find($('.bad-apple')).length,
-  url: 'http://paginatedlisitings.com',
-});
+}

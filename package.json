@@ -1,18 +1,17 @@
 {
   "name": "paginated-listings-scraper",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Extract listings data from paginated web pages",
   "main": "index.js",
   "scripts": {
-    "start": "DEBUG=paginated-listings-scraper  nodemon --exec babel-node src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src --out-dir lib",
+    "start": " nodemon --exec babel-node src"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/dunika/paginated-listings-scraper.git"
   },
   "keywords": [
-    "listings",
     "pagination",
     "paginated",
     "scrape",
@@ -37,15 +36,12 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
-    "jest": "^20.0.4",
     "node-babel": "^0.1.2",
-    "nodemon": "^1.12.1",
-    "webpack": "^3.5.6"
+    "nodemon": "^1.12.1"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "debug": "^3.0.1",
-    "is-positive-integer": "^1.1.1",
     "lodash": "^4.17.4",
     "request-promise-native": "^1.0.4"
   }
