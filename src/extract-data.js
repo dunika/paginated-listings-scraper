@@ -130,7 +130,7 @@ export default async function extractData({
     return extract(cheerioElement, $);
   }).get().filter(value => value);
 
-  // If the lenght of the data does not match the lenght of the elements acted on then we can assume
+  // If the length of the data does not match the length of the elements acted on then we can assume
   // that the terminate function return true
   const nextPageUrl = data.length === elements.length ? getNextPageUrl(
     nextPageSelector,
