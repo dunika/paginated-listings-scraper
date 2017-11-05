@@ -72,7 +72,7 @@ If you need something more custom then this then use a function. The function wi
 
 ```
   nextPageSelector(origin, $) {
-    return `${origin}${$('a.hard-to-get').attr('data-hidden-href')}
+    return `${origin}${$('a.hard-to-get').attr('data-hidden-href')}`
   }
 
 ```
