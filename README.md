@@ -5,11 +5,14 @@ Extract listings data from paginated web pages.
 
 It uses [Cheerio](https://github.com/cheeriojs/cheerio) to access the DOM
 
-If you are using Chome you can get an accurate CSS selector for a given element quite easily. See this [Stack Overflow answer](https://stackoverflow.com/a/30381787/1552404)
+If you are using Chrome you can get an accurate CSS selector for a given element quite easily. See this [Stack Overflow answer](https://stackoverflow.com/a/30381787/1552404)
 
 For debugging set the `DEBUG=paginated-listings-scraper` environment variable
 
 `note: named functions are favored over the shorter arrow syntax to aid in debugging`
+
+## Installation
+`npm i paginated-listings-scraper`
 
 ## Example usage
 
@@ -43,7 +46,7 @@ The url of the page you wish to scrape. Ideally this should be a paginated page 
 
 ### parentSelector
 
-The CSS selector of the elements you wish to interate over. Each element found matching this selector will be mapped using dataSelector to extract the specified data. See [cheerio selectors](https://github.com/cheeriojs/cheerio#selectors), [cheerio find](https://github.com/cheeriojs/cheerio#findselector) and [cheerio map](https://github.com/cheeriojs/cheerio#filter-selector---filter-selection---filter-element---filter-functionindex-element-) 
+The CSS selector of the elements you wish to iterate over. Each element found matching this selector will be mapped using dataSelector to extract the specified data. See [cheerio selectors](https://github.com/cheeriojs/cheerio#selectors), [cheerio find](https://github.com/cheeriojs/cheerio#findselector) and [cheerio map](https://github.com/cheeriojs/cheerio#filter-selector---filter-selection---filter-element---filter-functionindex-element-) 
 
 ### dataSelector
 
@@ -63,9 +66,9 @@ The returned value from this will be added to an array which will eventually be 
 
 ### nextPageSelector
 
-Gets the url of the next page to be scraped. Can be either a CSS selector or a function. If a selector is used it gets the href propery of the element. If the href is not a valid url than it assumes it is a path and concaninates this with the origin of the url that was initially passed in as the `url` option
+Gets the url of the next page to be scraped. Can be either a CSS selector or a function. If a selector is used it gets the href property of the element. If the href is not a valid url than it assumes it is a path and concatenates this with the origin of the url that was initially passed in as the `url` option
 
-If you need something more custom then this then use a function. The function will recieve the origin taken from the original Url and the loaded Cheerio DOM as an argument which will allow you to select whatever you want from the page. 
+If you need something more custom then this then use a function. The function will receive the origin taken from the original Url and the loaded Cheerio DOM as an argument which will allow you to select whatever you want from the page. 
 
 ```
   nextPageSelector(origin, $) {
@@ -99,4 +102,4 @@ Can be either a CSS selector or a function. It is used to filter out unwanted el
 
 ### shouldReturnDataOnError (optional - default = false)
 
-States whether or not it should return the data its collected so far when it encounters an error while scraping a page. This will mean no error will be propogated so be careful. If you need to see whats going on turn on `debug` mode (see above)
+States whether or not it should return the data its collected so far when it encounters an error while scraping a page. This will mean no error will be propagated so be careful. If you need to see whats going on turn on `debug` mode (see above)
