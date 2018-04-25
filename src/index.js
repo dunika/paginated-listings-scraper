@@ -20,22 +20,23 @@ function getListings({
   origin,
   shouldReturnDataOnError = false,
   terminate,
+  requestOptions,
   ...otherOptions
 }) {
   if (!isNumber(maximiumDepth) && !isFunction(terminate)) {
     throw Error('Please provide either a maximiumDepth or a a terminate function');
   }
-  const getListing = async (url, depth = 1) => {
+  const getListing = async (url, { depth = 1, requestOptions }) => {
     debug(`Current page depth: ${depth}`);
     if (isNumber(maximiumDepth) && depth > maximiumDepth) {
       return [];
     }
     try {
       debug(`Getting listings from ${url}`);
-      const html = await request(url);
+      const html = await request({ url, ...requestOptions });
       const { nextPageUrl, data } = await extractData({ html, origin, terminate, ...otherOptions });
       if (nextPageUrl) {
-        const nextData = await getListing(nextPageUrl, depth + 1);
+        const nextData = await getListing(nextPageUrl, { depth: depth + 1 });
         return [...data && data, ...nextData];
       }
       return data;
@@ -54,14 +55,15 @@ function getListings({
 /**
 * @param  {Object} options
 * @param  {string} options.url
+* @param  {Object} [options.requestOptions]
 * @returns {void}
 */
 
 export default async function scrape(options) {
   try {
-    const { url, ...otherOptions } = options;
+    const { url, requestOptions, ...otherOptions } = options;
     const { origin } = new URL(url);
-    const data = await getListings({ origin, ...otherOptions })(url);
+    const data = await getListings({ origin, ...otherOptions })(url, { requestOptions });
     if (!data) {
       debug('scrape - no data found');
     } else {
