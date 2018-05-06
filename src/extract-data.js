@@ -144,5 +144,6 @@ export default async function extractData({
   return {
     data,
     nextPageUrl,
+    nextRequestOptions: nextRequestOptions && nextRequestOptions(origin, $, depth),
   };
 }
