@@ -25,7 +25,7 @@ function getListings({
   if (!isNumber(maximiumDepth) && !isFunction(terminate)) {
     throw Error('Please provide either a maximiumDepth or a a terminate function');
   }
-  const getListing = async (requestOptions, { depth = 1 }) => {
+  const getListing = async (requestOptions, { depth = 1 } = {}) => {
     debug(`Current page depth: ${depth}`);
     if (isNumber(maximiumDepth) && depth > maximiumDepth) {
       return [];
