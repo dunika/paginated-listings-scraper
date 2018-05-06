@@ -106,12 +106,14 @@ const withTerminate = (extract, terminate) => {
 
 export default async function extractData({
   dataSelector,
+  depth,
   filter,
   html,
   nextPageSelector,
   origin,
   parentSelector,
   terminate,
+  nextRequestOptions,
 }) {
   const $ = cheerio.load(html);
   const elements = $(parentSelector).filter(!filter ? () => true : filter);
@@ -119,7 +121,8 @@ export default async function extractData({
     debug(`No elements found matching ${parentSelector}`);
     return {
       data: null,
-      nextPageUrl: getNextPageUrl(nextPageSelector, origin, $),
+      nextPageUrl: getNextPageUrl(nextPageSelector, origin, $, depth),
+      nextRequestOptions: nextRequestOptions && nextRequestOptions(origin, $, depth),
     };
   }
   const extractor = isFunction(dataSelector) ? dataSelector : buildExtractText(dataSelector);

@@ -52,7 +52,7 @@ The CSS selector of the elements you wish to iterate over. Each element found ma
 
 Used to extract data from the elements returned from `parentSelector`. Can be either a function or an object of keys in the form `{ name: cssSelector }`. If an object is used it will iterate over each of its keys and extract the text contained within the element returned by the css selector. It will return each item as an object in the form `{ name: data }`.
 
-If a function is used it will recieve the element currently being acted on as a cheerio element as well as the  cheerio function created from the DOM as arguments which will allow you to select whatever data you need.
+If a function is used it will receive the element currently being acted on as a cheerio element as well as the  cheerio function created from the DOM as arguments which will allow you to select whatever data you need.
 
 ```
   dataSelector(element, $) {
