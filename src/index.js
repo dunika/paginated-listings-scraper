@@ -1,4 +1,4 @@
-import scrapeListing from './scrape-lisiting';
+import scrapeListing from './scrape-listing';
 import scrapePage from './scrape-page';
 
 export {
