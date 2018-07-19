@@ -1,72 +1,71 @@
 import { URL } from 'url';
 
+import Bluebird from 'bluebird';
 import cheerio from 'cheerio';
-import { isFunction } from 'lodash/fp'; // TODO get babel plugin for this
-
-import debug from './utils/debug';
+import { isFunction, pickBy } from 'lodash/fp'; // TODO get babel plugin for this
 
 /**
 * @param  {string | Function} nextPageSelector
-* @param  {string} origin
+* @param  {string} url
 * @param  {Function} $
 * @returns {Array}
 */
 
-const getNextPageUrl = function getNextPageUrl(nextPageSelector, origin, $) {
+const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url) {
   if (isFunction(nextPageSelector)) {
-    return nextPageSelector(origin, $);
+    return nextPageSelector($, url);
   }
 
   const element = $(nextPageSelector);
   if (!element) {
-    debug(`getNextPageUrl - no element found for nextPageSelector ${nextPageSelector}`);
     return null;
   }
 
   const href = element.attr('href');
   if (!href) {
-    debug(`getNextPageUrl - no href attribute found for nextPageSelector ${nextPageSelector}`);
     return null;
   }
 
   try {
-    const { href: url } = new URL(href);
-    debug(`getNextPageUrl - returned ${url}`);
-    return url;
+    return new URL(href).href;
   } catch (error) {
-    debug(`getNextPageUrl - returned ${origin}${href}`);
+    const { origin } = new URL(url);
     return `${origin}${href}`;
   }
 };
 
 
-/**
-* @param  {string | Function} dataSelector
-* @param  {Object} element
-* @param  {Function} $
-* @returns {Object}
-*/
+const extractText = ({ $, parent, selector }) => {
+  const element = parent ? parent.find($(selector)) : $(selector);
+  return element.text();
+};
 
-const buildExtractText = function buildExtractText(dataSelector) {
-  return function extractText(parent, $) {
-    return Object.entries(dataSelector).reduce((data, [name, selector]) => {
-      const element = parent.find($(selector));
-      let text = null;
-      if (!element.length) {
-        debug(`extractText - no element found for dataSelector { ${name} : '${selector}' }`);
-      } else {
-        text = element.text();
-        if (!text) {
-          debug(`extractText - no text found for dataSelector { ${name} : '${selector}' }`);
-        }
-      }
-      debug(`extractText - text found for dataSelector ${name}`);
-      return {
-        ...data,
-        [name]: text || null,
-      };
-    }, {});
-  };
+export const extractData = async ({
+  parent,
+  html,
+  url,
+  selectors,
+}) => {
+  try {
+    const data = await Bluebird.reduce(
+      Object.entries(selectors),
+      async (results, [key, selector]) => {
+        const extract = isFunction(selector) ? selector : extractText;
+        const $ = cheerio.load(html);
+        return {
+          ...results,
+          [key]: await extract({
+            $,
+            parent,
+            url,
+          }),
+        };
+      }, {},
+    );
+    return pickBy(data);
+  } catch (error) {
+    throw new Error(`Extraction error: ${error.message}`);
+  }
 };
 
 /**
@@ -81,7 +80,6 @@ const withTerminate = (extract, terminate) => {
     state.hasFinished = terminate(cheerioElement);
     if (state.hasFinished) {
       if (!state.hasPrinted) {
-        debug('extractData - terminated');
         state.hasPrinted = true;
       }
       return null;
@@ -97,53 +95,60 @@ const withTerminate = (extract, terminate) => {
 * @param  {Function} [options.filter]
 * @param  {string} options.html
 * @param  {string | Function} options.nextPageSelector
-* @param  {string} options.origin
+* @param  {string} options.url
 * @param  {string} options.parentSelector
 * @param  {string | Function} [options.dataSelector]
 * @param  {Function} [options.terminate]
 * @returns {Array}
 */
 
-export default async function extractData({
+export const extractListingData = async function extractListingData({
   dataSelector,
   depth,
   filter,
   html,
   nextPageSelector,
-  origin,
+  nextRequestOptions,
   parentSelector,
   terminate,
-  nextRequestOptions,
+  url,
 }) {
   const $ = cheerio.load(html);
   const elements = $(parentSelector).filter(!filter ? () => true : filter);
+
   if (!elements.length) {
-    debug(`No elements found matching ${parentSelector}`);
     return {
       data: null,
-      nextPageUrl: getNextPageUrl(nextPageSelector, origin, $, depth),
-      nextRequestOptions: nextRequestOptions && nextRequestOptions(origin, $, depth),
+      nextPageUrl: getNextPageUrl(nextPageSelector, $, url),
+      nextRequestOptions: nextRequestOptions && nextRequestOptions(url, $, depth),
     };
   }
-  const extractor = isFunction(dataSelector) ? dataSelector : buildExtractText(dataSelector);
+
+  const extractor = isFunction(dataSelector) ? dataSelector : extractData;
 
   const extract = terminate ? withTerminate(extractor, terminate) : extractor;
+
   const data = elements.map((index, element) => {
-    const cheerioElement = $(element);
-    return extract(cheerioElement, $);
+    const parent = $(element);
+    return extract({
+      html,
+      parent,
+      selectors: dataSelector,
+      url,
+    });
   }).get().filter(value => value);
 
   // If the length of the data does not match the length of the elements acted on then we can assume
-  // that the terminate function return true
+  // that the terminate function returned true
   const nextPageUrl = data.length === elements.length ? getNextPageUrl(
     nextPageSelector,
-    origin,
+    url,
     $,
   ) : null;
 
   return {
     data,
     nextPageUrl,
-    nextRequestOptions: nextRequestOptions && nextRequestOptions(origin, $, depth),
+    nextRequestOptions: nextRequestOptions && nextRequestOptions(url, $, depth),
   };
-}
+};

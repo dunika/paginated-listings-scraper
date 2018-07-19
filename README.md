@@ -7,9 +7,6 @@ It uses [Cheerio](https://github.com/cheeriojs/cheerio) to access the DOM
 
 If you are using Chrome you can get an accurate CSS selector for a given element quite easily. See this [Stack Overflow answer](https://stackoverflow.com/a/30381787/1552404)
 
-For debugging set the `DEBUG=paginated-listings-scraper` environment variable
-
-`note: named functions are favored over the shorter arrow syntax to aid in debugging`
 
 ## Installation
 `npm i paginated-listings-scraper`
@@ -68,10 +65,10 @@ The returned value from this will be added to an array which will eventually be 
 
 Gets the url of the next page to be scraped. Can be either a CSS selector or a function. If a selector is used it gets the href property of the element. If the href is not a valid url than it assumes it is a path and concatenates this with the origin of the url that was initially passed in as the `url` option
 
-If you need something more custom then this then use a function. The function will receive the origin taken from the original Url and the loaded Cheerio DOM as an argument which will allow you to select whatever you want from the page. 
+If you need something more custom then this then use a function. The function will receive the original Url and the loaded Cheerio DOM as an argument which will allow you to select whatever you want from the page. 
 
 ```
-  nextPageSelector(origin, $) {
+  nextPageSelector($, url) {
     return `${origin}${$('a.hard-to-get').attr('data-hidden-href')}`
   }
 
@@ -102,4 +99,4 @@ Can be either a CSS selector or a function. It is used to filter out unwanted el
 
 ### shouldReturnDataOnError (optional - default = false)
 
-States whether or not it should return the data its collected so far when it encounters an error while scraping a page. This will mean no error will be propagated so be careful. If you need to see whats going on turn on `debug` mode (see above)
+States whether or not it should return the data its collected so far when it encounters an error while scraping a page. This will mean no error will be propagated so be careful.
