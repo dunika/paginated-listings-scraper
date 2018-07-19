@@ -1,6 +1,6 @@
 import request from 'request-promise-native';
 
-import { extractData } from './extract-data';
+import { buildExtractData } from './extract-data';
 
 const getPage = async (url, requestOptions) => {
   try {
@@ -24,6 +24,7 @@ export default async function scrapePage({
   if (!html) {
     throw new Error(`No HTML found: ${resolvedUrl}`);
   }
+  const extractData = buildExtractData(selectors);
   const extractedData = await extractData({
     html,
     selectors,

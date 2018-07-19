@@ -40,11 +40,10 @@ const extractText = ({ $, parent, selector }) => {
   return element.text();
 };
 
-export const extractData = async ({
+export const buildExtractData = selectors => async ({
   parent,
   html,
   url,
-  selectors,
 }) => {
   try {
     const data = await Bluebird.reduce(
@@ -76,16 +75,23 @@ export const extractData = async ({
 
 const withTerminate = (extract, terminate) => {
   const state = { hasFinished: false, hasPrinted: false };
-  return function extractWithTerminate(cheerioElement, $) {
-    state.hasFinished = terminate(cheerioElement);
+  return async function extractWithTerminate({ html, parent, url }) {
+    const $ = cheerio.load(html);
+    state.hasFinished = terminate(parent, $);
     if (state.hasFinished) {
       if (!state.hasPrinted) {
         state.hasPrinted = true;
       }
       return null;
     }
-    return extract(cheerioElement, $);
+    const data = await extract({ html, parent, url });
+    return data;
   };
+};
+
+const buildDataSelectorExtractor = dataSelector => ({ html, ...rest }) => {
+  const $ = cheerio.load(html);
+  return dataSelector({ $, ...rest });
 };
 
 
@@ -120,24 +126,26 @@ export const extractListingData = async function extractListingData({
     return {
       data: null,
       nextPageUrl: getNextPageUrl(nextPageSelector, $, url),
-      nextRequestOptions: nextRequestOptions && nextRequestOptions(url, $, depth),
+      nextRequestOptions: nextRequestOptions && nextRequestOptions($, url, depth),
     };
   }
 
-  const extractor = isFunction(dataSelector) ? dataSelector : extractData;
+  const extractor = isFunction(dataSelector)
+    ? buildDataSelectorExtractor(dataSelector)
+    : buildExtractData(dataSelector);
 
   const extract = terminate ? withTerminate(extractor, terminate) : extractor;
 
-  const data = elements.map((index, element) => {
-    const parent = $(element);
-    return extract({
+  const parents = elements.map((index, element) => $(element)).get();
+
+  const data = Bluebird.map(parents, async (parent) => {
+    const extractedData = await extract({
       html,
       parent,
-      selectors: dataSelector,
       url,
     });
-  }).get().filter(value => value);
-
+    return extractedData;
+  }).filter(Boolean);
   // If the length of the data does not match the length of the elements acted on then we can assume
   // that the terminate function returned true
   const nextPageUrl = data.length === elements.length ? getNextPageUrl(
