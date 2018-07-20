@@ -11,9 +11,9 @@ import { isFunction, pickBy } from 'lodash/fp'; // TODO get babel plugin for thi
 * @returns {Array}
 */
 
-const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url) {
+const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url, depth) {
   if (isFunction(nextPageSelector)) {
-    return nextPageSelector($, url);
+    return nextPageSelector({ $, depth, url });
   }
 
   const element = $(nextPageSelector);
@@ -37,7 +37,7 @@ const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url) {
 
 const extractText = ({ $, parent, selector }) => {
   const element = parent ? parent.find($(selector)) : $(selector);
-  return element.text();
+  return element.text().trim();
 };
 
 export const buildExtractData = selectors => async ({
@@ -51,19 +51,18 @@ export const buildExtractData = selectors => async ({
       async (results, [key, selector]) => {
         const extract = isFunction(selector) ? selector : extractText;
         const $ = cheerio.load(html);
+        const result = await extract({ $, parent, url });
         return {
           ...results,
-          [key]: await extract({
-            $,
-            parent,
-            url,
-          }),
+          [key]: result,
         };
       }, {},
     );
     return pickBy(data);
   } catch (error) {
-    throw new Error(`Extraction error: ${error.message}`);
+    throw new Error(`Extraction error: ${url}
+      ${error.message}
+    `);
   }
 };
 
@@ -125,7 +124,7 @@ export const extractListingData = async function extractListingData({
   if (!elements.length) {
     return {
       data: null,
-      nextPageUrl: getNextPageUrl(nextPageSelector, $, url),
+      nextPageUrl: getNextPageUrl(nextPageSelector, $, url, depth),
       nextRequestOptions: nextRequestOptions && nextRequestOptions($, url, depth),
     };
   }

@@ -1,7 +1,9 @@
 import scrapeListing from './scrape-listing';
-import scrapePage from './scrape-page';
+import scrapePage, { getPage } from './scrape-page';
+
+export default scrapeListing;
 
 export {
-  scrapeListing,
   scrapePage,
+  getPage,
 };

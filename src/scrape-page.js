@@ -1,17 +1,24 @@
 import request from 'request-promise-native';
+import cheerio from 'cheerio';
 
 import { buildExtractData } from './extract-data';
 
-const getPage = async (url, requestOptions) => {
+export const getPage = async (url, { loadCheerio, ...requestOptions }) => {
   try {
     const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
       resolveWithFullResponse: true,
       uri: url,
       ...requestOptions,
     });
+    if (loadCheerio) {
+      const $ = cheerio.load(html);
+      return { $, html, resolvedUrl };
+    }
     return { html, resolvedUrl };
   } catch (error) {
-    throw new Error(`Request error: ${error.message}`);
+    throw new Error(`Request error: ${url}
+      ${error.message}
+    `);
   }
 };
 

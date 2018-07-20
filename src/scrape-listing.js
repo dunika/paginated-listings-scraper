@@ -1,45 +1,42 @@
-import request from 'request-promise-native';
 import { isNumber, isFunction } from 'lodash/fp';
 
+import { getPage } from './scrape-page';
 import { extractListingData } from './extract-data';
 
 /**
 * Recursively calls its inner function to extract data from each page
 * @param  {Object} options
 * @param  {string} options.origin
-* @param  {number} [options.maximiumDepth]
+* @param  {number} [options.maximumDepth]
 * @param {Function} [options.terminate]
 * @returns {Function} getListing
 */
 
 function getListings({
-  maximiumDepth,
+  maximumDepth,
   url,
   shouldReturnDataOnError = false,
   terminate,
   ...otherOptions
 }) {
-  if (!isNumber(maximiumDepth) && !isFunction(terminate)) {
-    throw Error('Please provide either a maximiumDepth or a a terminate function');
+  if (!isNumber(maximumDepth) && !isFunction(terminate)) {
+    throw Error('Please provide either a maximumDepth or a a terminate function');
   }
 
-  const getListing = async (requestOptions, { depth = 1 } = {}) => {
-    if (isNumber(maximiumDepth) && depth > maximiumDepth) {
+  const getListing = async (requestUrl, requestOptions, { depth = 1 } = {}) => {
+    if (isNumber(maximumDepth) && depth > maximumDepth) {
       return [];
     }
     try {
-      const html = await request(requestOptions);
+      const { html } = await getPage(requestUrl, requestOptions);
       const {
         requestOptions: nextRequestOptions,
         nextPageUrl,
         data,
-      } = await extractListingData({ depth, html, url, terminate, ...otherOptions });
+      } = await extractListingData({ depth, html, terminate, url, ...otherOptions });
 
       if (nextPageUrl || nextRequestOptions) {
-        const nextData = await getListing({
-          url: nextPageUrl,
-          ...nextRequestOptions,
-        }, { depth: depth + 1 });
+        const nextData = await getListing(nextPageUrl, nextRequestOptions, { depth: depth + 1 });
         return [...data && data, ...nextData];
       }
       return data;
@@ -64,7 +61,7 @@ function getListings({
 export default async function scrapeListing(options) {
   try {
     const { url, requestOptions, ...otherOptions } = options;
-    const data = await getListings({ url, ...otherOptions })({ url, ...requestOptions });
+    const data = await getListings({ url, ...otherOptions })(url, requestOptions);
     return data;
   } catch (error) {
     throw new Error(error);
