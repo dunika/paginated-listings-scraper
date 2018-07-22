@@ -2,6 +2,7 @@ import { isNumber, isFunction } from 'lodash/fp';
 
 import { getPage } from './scrape-page';
 import { extractListingData } from './extract-data';
+import debug from './debug';
 
 /**
 * Recursively calls its inner function to extract data from each page
@@ -24,6 +25,7 @@ function getListings({
   }
 
   const getListing = async (requestUrl, requestOptions, { depth = 1 } = {}) => {
+    debug(`Current page depth: ${depth}`);
     if (isNumber(maximumDepth) && depth > maximumDepth) {
       return [];
     }
@@ -41,6 +43,7 @@ function getListings({
       }
       return data;
     } catch (error) {
+      debug(`ERROR: getListings: ${error.message}`);
       if (shouldReturnDataOnError) {
         return [];
       }
@@ -62,8 +65,14 @@ export default async function scrapeListing(options) {
   try {
     const { url, requestOptions, ...otherOptions } = options;
     const data = await getListings({ url, ...otherOptions })(url, requestOptions);
+    if (!data) {
+      debug('scrape - no data found');
+    } else {
+      debug(`scrape - finished with ${data.length} results`);
+    }
     return data;
   } catch (error) {
+    debug(`ERROR: scrape: ${error.message}`);
     throw new Error(error);
   }
 }

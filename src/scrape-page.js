@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 
 import { buildExtractData } from './extract-data';
 
-export const getPage = async (url, { loadCheerio, ...requestOptions }) => {
+export const getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
   try {
     const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
       resolveWithFullResponse: true,

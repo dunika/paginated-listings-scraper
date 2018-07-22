@@ -7,6 +7,8 @@ It uses [Cheerio](https://github.com/cheeriojs/cheerio) to access the DOM
 
 If you are using Chrome you can get an accurate CSS selector for a given element quite easily. See this [Stack Overflow answer](https://stackoverflow.com/a/30381787/1552404)
 
+For debugging set the `DEBUG=paginated-listings-scraper` environment variable
+
 
 ## Installation
 `npm i paginated-listings-scraper`

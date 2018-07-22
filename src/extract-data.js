@@ -4,6 +4,8 @@ import Bluebird from 'bluebird';
 import cheerio from 'cheerio';
 import { isFunction, pickBy } from 'lodash/fp'; // TODO get babel plugin for this
 
+import debug from './debug';
+
 /**
 * @param  {string | Function} nextPageSelector
 * @param  {string} url
@@ -18,6 +20,7 @@ const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url, depth) 
 
   const element = $(nextPageSelector);
   if (!element) {
+    debug(`getNextPageUrl - no element found for nextPageSelector ${nextPageSelector}`);
     return null;
   }
 
@@ -27,7 +30,9 @@ const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url, depth) 
   }
 
   try {
-    return new URL(href).href;
+    const nextPageUrl = new URL(href).href;
+    debug(`getNextPageUrl - returned ${url}`);
+    return nextPageUrl;
   } catch (error) {
     const { origin } = new URL(url);
     return `${origin}${href}`;
@@ -60,6 +65,7 @@ export const buildExtractData = selectors => async ({
     );
     return pickBy(data);
   } catch (error) {
+    debug(`Extacction Error - ${error.message}`);
     throw new Error(`Extraction error: ${url}
       ${error.message}
     `);
@@ -79,6 +85,7 @@ const withTerminate = (extract, terminate) => {
     state.hasFinished = terminate(parent, $);
     if (state.hasFinished) {
       if (!state.hasPrinted) {
+        debug('extractData - terminated');
         state.hasPrinted = true;
       }
       return null;
@@ -122,13 +129,13 @@ export const extractListingData = async function extractListingData({
   const elements = $(parentSelector).filter(!filter ? () => true : filter);
 
   if (!elements.length) {
+    debug(`No elements found matching ${parentSelector}`);
     return {
       data: null,
       nextPageUrl: getNextPageUrl(nextPageSelector, $, url, depth),
       nextRequestOptions: nextRequestOptions && nextRequestOptions($, url, depth),
     };
   }
-
   const extractor = isFunction(dataSelector)
     ? buildDataSelectorExtractor(dataSelector)
     : buildExtractData(dataSelector);
