@@ -9,7 +9,6 @@ If you are using Chrome you can get an accurate CSS selector for a given element
 
 For debugging set the `DEBUG=paginated-listings-scraper` environment variable
 
-
 ## Installation
 `npm i paginated-listings-scraper`
 
