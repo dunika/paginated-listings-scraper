@@ -38,7 +38,7 @@
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
     "node-babel": "^0.1.2",
-    "nodemon": "^1.12.1",
+    "nodemon": "^1.12.1"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
