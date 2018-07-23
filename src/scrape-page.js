@@ -27,12 +27,13 @@ export default async function scrapePage({
   selectors,
   requestOptions,
 }) {
-  const { html, resolvedUrl } = await getPage(url, requestOptions);
+  const { html, resolvedUrl, $ } = await getPage(url, { ...requestOptions, loadCheerio: true });
   if (!html) {
     throw new Error(`No HTML found: ${resolvedUrl}`);
   }
   const extractData = buildExtractData(selectors);
   const extractedData = await extractData({
+    $,
     html,
     selectors,
     url: resolvedUrl,

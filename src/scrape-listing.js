@@ -25,10 +25,11 @@ function getListings({
   }
 
   const getListing = async (requestUrl, requestOptions, { depth = 1 } = {}) => {
-    debug(`Current page depth: ${depth}`);
     if (isNumber(maximumDepth) && depth > maximumDepth) {
+      debug(`Maximum depth reached: ${depth}`);
       return [];
     }
+    debug(`Current page depth: ${depth}`);
     try {
       const { html } = await getPage(requestUrl, requestOptions);
       const {

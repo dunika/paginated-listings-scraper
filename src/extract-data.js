@@ -55,11 +55,15 @@ export const buildExtractData = selectors => async ({
       async (results, [key, selector]) => {
         const extract = isFunction(selector) ? selector : buildExtractText(selector);
         const $ = cheerio.load(html);
-        const result = await extract({ $, parent, url });
-        return {
-          ...results,
-          [key]: result,
-        };
+        try {
+          const result = await extract({ $, parent, url });
+          return {
+            ...results,
+            [key]: result,
+          };
+        } catch (error) {
+          throw new Error(`${key} ${error.message}`);
+        }
       }, {},
     );
     return pickBy(data);
