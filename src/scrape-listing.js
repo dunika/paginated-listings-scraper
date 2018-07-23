@@ -43,7 +43,7 @@ function getListings({
       }
       return data;
     } catch (error) {
-      debug(`ERROR: getListings: ${error.message}`);
+      debug(`Error: ${error.message}`);
       if (shouldReturnDataOnError) {
         return [];
       }
@@ -66,13 +66,13 @@ export default async function scrapeListing(options) {
     const { url, requestOptions, ...otherOptions } = options;
     const data = await getListings({ url, ...otherOptions })(url, requestOptions);
     if (!data) {
-      debug('scrape - no data found');
+      debug('No data found');
     } else {
-      debug(`scrape - finished with ${data.length} results`);
+      debug(`Finished with ${data.length} results`);
     }
     return data;
   } catch (error) {
-    debug(`ERROR: scrape: ${error.message}`);
+    debug(`Error: ${error.message}`);
     throw new Error(error);
   }
 }

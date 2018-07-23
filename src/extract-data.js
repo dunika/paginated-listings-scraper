@@ -1,8 +1,7 @@
 import { URL } from 'url';
-
 import Bluebird from 'bluebird';
 import cheerio from 'cheerio';
-import { isFunction, pickBy } from 'lodash/fp'; // TODO get babel plugin for this
+import { isFunction, pickBy } from 'lodash'; // TODO get babel plugin for this
 
 import debug from './debug';
 
@@ -40,8 +39,8 @@ const getNextPageUrl = function getNextPageUrl(nextPageSelector, $, url, depth) 
 };
 
 
-const extractText = ({ $, parent, selector }) => {
-  const element = parent ? parent.find($(selector)) : $(selector);
+const buildExtractText = selector => ({ $, parent }) => {
+  const element = parent ? parent.find(selector) : $(selector);
   return element.text().trim();
 };
 
@@ -54,7 +53,7 @@ export const buildExtractData = selectors => async ({
     const data = await Bluebird.reduce(
       Object.entries(selectors),
       async (results, [key, selector]) => {
-        const extract = isFunction(selector) ? selector : extractText;
+        const extract = isFunction(selector) ? selector : buildExtractText(selector);
         const $ = cheerio.load(html);
         const result = await extract({ $, parent, url });
         return {
@@ -65,7 +64,7 @@ export const buildExtractData = selectors => async ({
     );
     return pickBy(data);
   } catch (error) {
-    debug(`Extacction Error - ${error.message}`);
+    debug(`Extraction error - ${error.message}`);
     throw new Error(`Extraction error: ${url}
       ${error.message}
     `);
@@ -144,7 +143,7 @@ export const extractListingData = async function extractListingData({
 
   const parents = elements.map((index, element) => $(element)).get();
 
-  const data = Bluebird.map(parents, async (parent) => {
+  const data = await Bluebird.map(parents, async (parent) => {
     const extractedData = await extract({
       html,
       parent,
@@ -156,8 +155,8 @@ export const extractListingData = async function extractListingData({
   // that the terminate function returned true
   const nextPageUrl = data.length === elements.length ? getNextPageUrl(
     nextPageSelector,
-    url,
     $,
+    url,
   ) : null;
 
   return {
