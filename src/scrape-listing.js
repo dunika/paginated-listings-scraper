@@ -64,7 +64,8 @@ function getListings({
 export default async function scrapeListing(options) {
   try {
     const { url, requestOptions, ...otherOptions } = options;
-    const data = await getListings({ url, ...otherOptions })(url, requestOptions);
+    const requestUrl = url || requestOptions.url;
+    const data = await getListings({ requestUrl, ...otherOptions })(requestUrl, requestOptions);
     if (!data) {
       debug('No data found');
     } else {
