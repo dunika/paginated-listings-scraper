@@ -38,14 +38,14 @@
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
     "node-babel": "^0.1.2",
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "parcel-bundler": "^1.9.7"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
     "debug": "^3.1.0",
     "lodash": "^4.17.4",
-    "parcel-bundler": "^1.9.7",
     "request": "^2.87.0",
     "request-promise-native": "^1.0.4"
   }
