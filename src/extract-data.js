@@ -1,9 +1,11 @@
-import { URL } from 'url';
-import Bluebird from 'bluebird';
-import cheerio from 'cheerio';
-import { isFunction, pickBy } from 'lodash'; // TODO get babel plugin for this
+const { URL } = require('url');
 
-import debug from './debug';
+const { isFunction, pickBy } = require('lodash');
+const Bluebird = require('bluebird');
+const cheerio = require('cheerio');
+
+const { buildExtractData } = require('./extract-data');
+const debug = require('./debug');
 
 /**
 * @param  {string | Function} nextPageSelector
@@ -44,7 +46,7 @@ const buildExtractText = selector => ({ $, parent }) => {
   return element.text().trim();
 };
 
-export const buildExtractData = selectors => async ({
+module.exports.buildExtractData = selectors => async ({
   parent,
   html,
   url,
@@ -117,7 +119,7 @@ const buildDataSelectorExtractor = dataSelector => ({ html, ...rest }) => {
 * @returns {Array}
 */
 
-export const extractListingData = async function extractListingData({
+module.exports.extractListingData = async function extractListingData({
   dataSelector,
   depth,
   filter,

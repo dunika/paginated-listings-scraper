@@ -1,3 +1,3 @@
-import debug from 'debug';
+const debug = require('debug');
 
-export default debug('paginated-listings-scraper');
+module.exports = debug('paginated-listings-scraper');

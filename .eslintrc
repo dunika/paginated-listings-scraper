@@ -1,18 +1,4 @@
 {
   "extends": "airbnb-base",
-  "plugins": ["import"],
-  "rules": {
-    "import/first": [2, "absolute-first"],
-    "import/order": [ 2, {
-      "groups": [
-          "builtin",
-          "external",
-          ["index", "internal", "parent", "sibling"]
-        ],
-        "newlines-between": "always"
-      }
-    ],
-    "sort-keys":"error",
-    "sort-vars":"error"
-  }
+  "plugins": ["import"]
 }

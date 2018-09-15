@@ -1,9 +1,9 @@
-import request from 'request-promise-native';
-import cheerio from 'cheerio';
+const request = require('request-promise-native');
+const cheerio = require('cheerio');
 
-import { buildExtractData } from './extract-data';
+const { buildExtractData } = require('./extract-data');
 
-export const getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
+module.exports.getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
   try {
     const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
       resolveWithFullResponse: true,
@@ -22,7 +22,7 @@ export const getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
   }
 };
 
-export default async function scrapePage({
+module.exports.scrapePage = async function scrapePage({
   url,
   selectors,
   requestOptions,
@@ -40,4 +40,4 @@ export default async function scrapePage({
   });
 
   return extractedData;
-}
+};

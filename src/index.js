@@ -1,9 +1,8 @@
-import scrapeListing from './scrape-listing';
-import scrapePage, { getPage } from './scrape-page';
+const scrapeListing = require('./scrape-listing');
+const { scrapePage, getPage } = require('./scrape-page');
 
-export default scrapeListing;
-
-export {
-  scrapePage,
+module.exports = {
   getPage,
+  scrapeListing,
+  scrapePage,
 };

@@ -1,8 +1,8 @@
-import { isNumber, isFunction } from 'lodash/fp';
+const { isNumber, isFunction } = require('lodash/fp');
 
-import { getPage } from './scrape-page';
-import { extractListingData } from './extract-data';
-import debug from './debug';
+const { getPage } = require('./scrape-page');
+const { extractListingData } = require('./extract-data');
+const debug = require('./debug');
 
 /**
 * Recursively calls its inner function to extract data from each page
@@ -62,7 +62,7 @@ function getListings({
 * @returns {void}
 */
 
-export default async function scrapeListing(options) {
+module.exports = async function scrapeListing(options) {
   try {
     const { url, requestOptions, ...otherOptions } = options;
     const requestUrl = url || requestOptions.url;
@@ -77,4 +77,4 @@ export default async function scrapeListing(options) {
     debug(`Error: ${error.message}`);
     throw new Error(error);
   }
-}
+};
