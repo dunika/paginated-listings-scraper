@@ -4,7 +4,6 @@ const { isFunction, pickBy } = require('lodash');
 const Bluebird = require('bluebird');
 const cheerio = require('cheerio');
 
-const { buildExtractData } = require('./extract-data');
 const debug = require('./debug');
 
 /**
@@ -46,7 +45,7 @@ const buildExtractText = selector => ({ $, parent }) => {
   return element.text().trim();
 };
 
-module.exports.buildExtractData = selectors => async ({
+const buildExtractData = selectors => async ({
   parent,
   html,
   url,
@@ -76,6 +75,8 @@ module.exports.buildExtractData = selectors => async ({
     `);
   }
 };
+
+module.exports.buildExtractData = buildExtractData;
 
 /**
 * @param  {Function} extract
