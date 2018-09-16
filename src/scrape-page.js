@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 
 const { buildExtractData } = require('./extract-data');
 
-module.exports.getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
+const getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
   try {
     const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
       resolveWithFullResponse: true,
@@ -21,6 +21,8 @@ module.exports.getPage = async (url, { loadCheerio, ...requestOptions } = {}) =>
     `);
   }
 };
+
+module.exports.getPage = getPage;
 
 module.exports.scrapePage = async function scrapePage({
   url,
