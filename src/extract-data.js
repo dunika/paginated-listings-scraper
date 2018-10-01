@@ -169,6 +169,6 @@ module.exports.extractListingData = async function extractListingData({
   return {
     data,
     nextPageUrl,
-    nextRequestOptions: nextRequestOptions && nextRequestOptions(url, $, depth),
+    nextRequestOptions: nextRequestOptions && nextRequestOptions({ url, $, depth }),
   };
 };

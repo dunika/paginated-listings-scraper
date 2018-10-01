@@ -33,7 +33,7 @@ function getListings({
     try {
       const { html } = await getPage(requestUrl, requestOptions);
       const {
-        requestOptions: nextRequestOptions,
+        nextRequestOptions,
         nextPageUrl,
         data,
       } = await extractListingData({ depth, html, terminate, url, ...otherOptions });
