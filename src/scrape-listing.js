@@ -38,7 +38,6 @@ function getListings({
         html: passedHtml,
         loadCheerio: false,
       });
-      console.log('HMLT');
       const {
         nextRequestOptions,
         nextPageUrl,
