@@ -3,8 +3,19 @@ const cheerio = require('cheerio');
 
 const { buildExtractData } = require('./extract-data');
 
-const getPage = async (url, { loadCheerio, ...requestOptions } = {}) => {
+const getPage = async ({
+  url,
+  loadCheerio = true,
+  html: passedHtml,
+  ...requestOptions
+} = {}) => {
   try {
+    if (passedHtml) {
+      return {
+        html: passedHtml,
+        $: cheerio.load(passedHtml),
+      };
+    }
     const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
       resolveWithFullResponse: true,
       uri: url,
@@ -27,9 +38,14 @@ module.exports.getPage = getPage;
 module.exports.scrapePage = async function scrapePage({
   url,
   selectors,
+  html: passedHtml,
   requestOptions,
 }) {
-  const { html, resolvedUrl, $ } = await getPage(url, { ...requestOptions, loadCheerio: true });
+  const { html, resolvedUrl, $ } = await getPage({
+    url,
+    html: passedHtml,
+    requestOptions,
+  });
   if (!html) {
     throw new Error(`No HTML found: ${resolvedUrl}`);
   }

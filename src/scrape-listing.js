@@ -18,6 +18,7 @@ function getListings({
   url,
   shouldReturnDataOnError = false,
   terminate,
+  html: passedHtml,
   ...otherOptions
 }) {
   if (!isNumber(maximumDepth) && !isFunction(terminate)) {
@@ -31,7 +32,12 @@ function getListings({
     }
     debug(`Current page depth: ${depth}`);
     try {
-      const { html } = await getPage(requestUrl, requestOptions);
+      const { html } = await getPage({
+        ...requestOptions,
+        url: requestUrl,
+        html: passedHtml,
+        loadCheerio: false,
+      });
       const {
         nextRequestOptions,
         nextPageUrl,
