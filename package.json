@@ -25,16 +25,16 @@
   "homepage": "https://github.com/dunika/pagination-scraper#readme",
   "devDependencies": {
     "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.3.1",
-    "eslint-plugin-import": "^2.7.0",
-    "nodemon": "^1.12.1"
+    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-plugin-import": "^2.14.0",
+    "nodemon": "^1.18.4"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.2",
     "cheerio": "^1.0.0-rc.2",
-    "debug": "^3.1.0",
-    "lodash": "^4.17.4",
-    "request": "^2.87.0",
+    "debug": "^3.2.6",
+    "lodash": "^4.17.11",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.4"
   }
 }

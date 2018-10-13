@@ -38,6 +38,7 @@ function getListings({
         html: passedHtml,
         loadCheerio: false,
       });
+      console.log('HMLT');
       const {
         nextRequestOptions,
         nextPageUrl,
@@ -68,11 +69,19 @@ function getListings({
 * @returns {void}
 */
 
-module.exports = async function scrapeListing(options) {
+module.exports = async function scrapeListing({
+  url,
+  requestOptions = {},
+  html,
+  ...otherOptions
+}) {
   try {
-    const { url, requestOptions, ...otherOptions } = options;
-    const requestUrl = url || requestOptions.url;
-    const data = await getListings({ requestUrl, ...otherOptions })(requestUrl, requestOptions);
+    const requestUrl = !html ? url || requestOptions.url : '';
+    const data = await getListings({
+      requestUrl,
+      html,
+      ...otherOptions,
+    })(requestUrl, requestOptions);
     if (!data) {
       debug('No data found');
     } else {
