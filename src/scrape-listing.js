@@ -25,7 +25,7 @@ function getListings({
     throw Error('Please provide either a maximumDepth or a a terminate function');
   }
 
-  const getListing = async (requestUrl, requestOptions, { depth = 1 } = {}) => {
+  const getListing = async (requestUrl, requestOptions = {}, { depth = 1 } = {}) => {
     if (isNumber(maximumDepth) && depth > maximumDepth) {
       debug(`Maximum depth reached: ${depth}`);
       return [];
@@ -34,7 +34,7 @@ function getListings({
     try {
       const { html } = await getPage({
         ...requestOptions,
-        url: requestUrl,
+        url: requestUrl || requestOptions.url,
         html: passedHtml,
         loadCheerio: false,
       });
