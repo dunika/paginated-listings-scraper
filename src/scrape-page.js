@@ -44,7 +44,7 @@ module.exports.scrapePage = async function scrapePage({
   const { html, resolvedUrl, $ } = await getPage({
     url,
     html: passedHtml,
-    requestOptions,
+    ...requestOptions,
   });
   if (!html) {
     throw new Error(`No HTML found: ${resolvedUrl}`);
