@@ -1,6 +1,6 @@
 {
   "name": "paginated-listings-scraper",
-  "version": "2.0.0-beta.9",
+  "version": "2.0.0-beta.10",
   "description": "Extract listings data from paginated web pages",
   "main": "src/index.js",
   "source": "src/index.js",
