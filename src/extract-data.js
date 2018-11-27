@@ -49,15 +49,15 @@ const buildExtractData = selectors => async ({
   parent,
   html,
   url,
+  $,
 }) => {
   try {
     const data = await Bluebird.reduce(
       Object.entries(selectors),
       async (results, [key, selector]) => {
         const extract = isFunction(selector) ? selector : buildExtractText(selector);
-        const $ = cheerio.load(html);
         try {
-          const result = await extract({ $, parent, url });
+          const result = await extract({ $: $.root().clone(), parent, url });
           return {
             ...results,
             [key]: result,
@@ -153,6 +153,7 @@ module.exports.extractListingData = async function extractListingData({
   const data = await Bluebird.map(parents, async (parent) => {
     const extractedData = await extract({
       html,
+      $,
       parent,
       url,
     });
