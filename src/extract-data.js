@@ -47,7 +47,6 @@ const buildExtractText = selector => ({ $, parent }) => {
 
 const buildExtractData = selectors => async ({
   parent,
-  html,
   url,
   $,
 }) => {
@@ -57,7 +56,7 @@ const buildExtractData = selectors => async ({
       async (results, [key, selector]) => {
         const extract = isFunction(selector) ? selector : buildExtractText(selector);
         try {
-          const result = await extract({ $: $.root().clone(), parent, url });
+          const result = await extract({ $, parent, url });
           return {
             ...results,
             [key]: result,
