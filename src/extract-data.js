@@ -164,6 +164,7 @@ module.exports.extractListingData = async function extractListingData({
     nextPageSelector,
     $,
     url,
+    depth,
   ) : null;
 
   return {
