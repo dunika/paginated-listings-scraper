@@ -1,3 +1,7 @@
+# DISCLAIMER
+
+```This documentation is for version 1. Version 2 has changed a lot and I'm afraid I havn't been able to update the documentation with the new features and changes so you are best off looking at the code. It should mostly work as before though hopefully. This is mainly a project for my own personal use. If you would like better documentation or encounter any errors please file and issue and I'll do my best to help you out.```
+
 # Paginated Listings Scraper
 
 
