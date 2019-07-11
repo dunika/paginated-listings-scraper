@@ -55,8 +55,10 @@ const buildExtractData = (selectors) => {
   return async ({ parent, $, ...rest }) => {
     try {
       const { results: data } = await Object.entries(selectors)
-      .reduce(async ({ getResults, results }, [key, selector]) => {
-        const nextResults = await getResults();
+      .reduce(async (promise, [key, selector]) => {
+        const { getResults, results } = await promise || {};
+
+        const nextResults = getResults ? await getResults() : null;
         const extract = isFunction(selector) ? selector : buildExtractText(selector);
         const nextGetResults = async () => {
           try {
@@ -76,10 +78,7 @@ const buildExtractData = (selectors) => {
             ...nextResults,
           },
         };
-      }, {
-        results: {},
-        nextResults: Promise.resolve(),
-      });
+      }, Promise.resolve());
       return pickBy(data);
     } catch (error) {
       throw error;
@@ -153,7 +152,7 @@ module.exports.extractListingData = async function extractListingData({
 
   const parents = elements.map((index, element) => $(element)).get();
 
-  const dataPromises = await parents.map(parents, parent => extract({
+  const dataPromises = parents.map(parent => extract({
     html,
     $,
     parent,

@@ -89,6 +89,6 @@ module.exports = async function scrapeListing({
     return data;
   } catch (error) {
     debug(`Error: ${error.message}`);
-    throw new Error(error);
+    throw error;
   }
 };
