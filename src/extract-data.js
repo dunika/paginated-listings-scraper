@@ -1,7 +1,6 @@
 const { URL } = require('url');
 
 const { isFunction, pickBy } = require('lodash');
-const Bluebird = require('bluebird');
 const cheerio = require('cheerio');
 
 const debug = require('./debug');
@@ -45,34 +44,47 @@ const buildExtractText = selector => ({ $, parent }) => {
   return element.text().trim();
 };
 
-const buildExtractData = selectors => async ({
-  parent,
-  url,
-  $,
-}) => {
-  try {
-    const data = await Bluebird.reduce(
-      Object.entries(selectors),
-      async (results, [key, selector]) => {
-        const extract = isFunction(selector) ? selector : buildExtractText(selector);
-        try {
-          const result = await extract({ $, parent, url });
-          return {
-            ...results,
-            [key]: result,
-          };
-        } catch (error) {
-          throw new Error(`${key} ${error.message}`);
-        }
-      }, {},
-    );
-    return pickBy(data);
-  } catch (error) {
-    debug(`Extraction error - ${error.message}`);
-    throw new Error(`Extraction error: ${url}
-      ${error.message}
-    `);
+const buildExtractData = (selectors) => {
+  if (isFunction(selectors)) {
+    return ({ html, ...rest }) => {
+      const $ = cheerio.load(html);
+      return selectors({ $, ...rest });
+    };
   }
+
+  return async ({ parent, $, ...rest }) => {
+    try {
+      const { results: data } = await Object.entries(selectors)
+      .reduce(async ({ getResults, results }, [key, selector]) => {
+        const nextResults = await getResults();
+        const extract = isFunction(selector) ? selector : buildExtractText(selector);
+        const nextGetResults = async () => {
+          try {
+            const result = await extract({ $, parent, ...rest });
+            return {
+              [key]: result,
+            };
+          } catch (error) {
+            throw new Error(`${key} ${error.message}`);
+          }
+        };
+
+        return {
+          getResults: nextGetResults,
+          results: {
+            ...results,
+            ...nextResults,
+          },
+        };
+      }, {
+        results: {},
+        nextResults: Promise.resolve(),
+      });
+      return pickBy(data);
+    } catch (error) {
+      throw error;
+    }
+  };
 };
 
 module.exports.buildExtractData = buildExtractData;
@@ -99,12 +111,6 @@ const withTerminate = (extract, terminate) => {
     return data;
   };
 };
-
-const buildDataSelectorExtractor = dataSelector => ({ html, ...rest }) => {
-  const $ = cheerio.load(html);
-  return dataSelector({ $, ...rest });
-};
-
 
 /**
 * @param  {Object} options
@@ -141,23 +147,21 @@ module.exports.extractListingData = async function extractListingData({
       nextRequestOptions: nextRequestOptions && nextRequestOptions($, url, depth),
     };
   }
-  const extractor = isFunction(dataSelector)
-    ? buildDataSelectorExtractor(dataSelector)
-    : buildExtractData(dataSelector);
+  const extractor = buildExtractData(dataSelector);
 
   const extract = terminate ? withTerminate(extractor, terminate) : extractor;
 
   const parents = elements.map((index, element) => $(element)).get();
 
-  const data = await Bluebird.map(parents, async (parent) => {
-    const extractedData = await extract({
-      html,
-      $,
-      parent,
-      url,
-    });
-    return extractedData;
-  }).filter(Boolean);
+  const dataPromises = await parents.map(parents, parent => extract({
+    html,
+    $,
+    parent,
+    url,
+  }));
+
+  const data = (await Promise.all(dataPromises)).filter(Boolean);
+
   // If the length of the data does not match the length of the elements acted on then we can assume
   // that the terminate function returned true
   const nextPageUrl = data.length === elements.length ? getNextPageUrl(
