@@ -54,31 +54,22 @@ const buildExtractData = (selectors) => {
 
   return async ({ parent, $, ...rest }) => {
     try {
-      const { results: data } = await Object.entries(selectors)
-      .reduce(async (promise, [key, selector]) => {
-        const { getResults, results } = await promise || {};
-
-        const nextResults = getResults ? await getResults() : null;
-        const extract = isFunction(selector) ? selector : buildExtractText(selector);
-        const nextGetResults = async () => {
+      const data = await Object.entries(selectors)
+        .reduce(async (promise, [key, selector]) => {
           try {
+            const prevResults = await promise || {};
+
+            const extract = isFunction(selector) ? selector : buildExtractText(selector);
+
             const result = await extract({ $, parent, ...rest });
             return {
+              ...prevResults,
               [key]: result,
             };
           } catch (error) {
             throw new Error(`${key} ${error.message}`);
           }
-        };
-
-        return {
-          getResults: nextGetResults,
-          results: {
-            ...results,
-            ...nextResults,
-          },
-        };
-      }, Promise.resolve());
+        }, Promise.resolve());
       return pickBy(data);
     } catch (error) {
       throw error;
