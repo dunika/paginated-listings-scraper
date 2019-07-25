@@ -16,7 +16,6 @@ const debug = require('./debug');
 function getListings({
   maximumDepth,
   url,
-  shouldReturnDataOnError = false,
   terminate,
   html: passedHtml,
   ...otherOptions
@@ -31,31 +30,23 @@ function getListings({
       return [];
     }
     debug(`Current page depth: ${depth}`);
-    try {
-      const { html } = await getPage({
-        ...requestOptions,
-        url: requestUrl || requestOptions.url,
-        html: passedHtml,
-        loadCheerio: false,
-      });
-      const {
+    const { html } = await getPage({
+      ...requestOptions,
+      url: requestUrl || requestOptions.url,
+      html: passedHtml,
+      loadCheerio: false,
+    });
+    const {
         nextRequestOptions,
         nextPageUrl,
         data,
       } = await extractListingData({ depth, html, terminate, url, ...otherOptions });
 
-      if (nextPageUrl || nextRequestOptions) {
-        const nextData = await getListing(nextPageUrl, nextRequestOptions, { depth: depth + 1 });
-        return [...data && data, ...nextData];
-      }
-      return data;
-    } catch (error) {
-      debug(`Error: ${error.message}`);
-      if (shouldReturnDataOnError) {
-        return [];
-      }
-      throw new Error(error);
+    if (nextPageUrl || nextRequestOptions) {
+      const nextData = await getListing(nextPageUrl, nextRequestOptions, { depth: depth + 1 });
+      return [...data && data, ...nextData];
     }
+    return data;
   };
   return getListing;
 }
