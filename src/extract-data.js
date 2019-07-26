@@ -130,12 +130,7 @@ module.exports.extractListingData = async function extractListingData({
   const elements = $(parentSelector).filter(!filter ? () => true : filter);
 
   if (!elements.length) {
-    debug(`No elements found matching ${parentSelector}`);
-    return {
-      data: null,
-      nextPageUrl: getNextPageUrl(nextPageSelector, $, url, depth),
-      nextRequestOptions: nextRequestOptions && nextRequestOptions($, url, depth),
-    };
+    throw new Error(`No elements found matching ${parentSelector}`);
   }
   const extractor = buildExtractData(dataSelector);
 
