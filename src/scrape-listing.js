@@ -18,6 +18,7 @@ function getListings({
   url,
   terminate,
   html: passedHtml,
+  shouldReturnDataOnError = false,
   ...otherOptions
 }) {
   if (!isNumber(maximumDepth) && !isFunction(terminate)) {
@@ -37,16 +38,23 @@ function getListings({
       loadCheerio: false,
     });
     const {
-        nextRequestOptions,
-        nextPageUrl,
-        data,
-      } = await extractListingData({ depth, html, terminate, url, ...otherOptions });
-
-    if (nextPageUrl || nextRequestOptions) {
-      const nextData = await getListing(nextPageUrl, nextRequestOptions, { depth: depth + 1 });
-      return [...data && data, ...nextData];
+          nextRequestOptions,
+          nextPageUrl,
+          data,
+        } = await extractListingData({ depth, html, terminate, url, ...otherOptions });
+    try {
+      if (nextPageUrl || nextRequestOptions) {
+        const nextData = await getListing(nextPageUrl, nextRequestOptions, { depth: depth + 1 });
+        return [...data && data, ...nextData];
+      }
+      return data;
+    } catch (error) {
+      debug(`Error: ${error.message}`);
+      if (shouldReturnDataOnError) {
+        return data;
+      }
+      throw error;
     }
-    return data;
   };
   return getListing;
 }

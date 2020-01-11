@@ -26,14 +26,14 @@
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.3.2",
-    "eslint-plugin-import": "^2.14.0",
-    "nodemon": "^1.18.4"
+    "eslint-plugin-import": "^2.20.0",
+    "nodemon": "^1.19.4"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "debug": "^3.2.6",
     "lodash": "^4.17.11",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.4"
+    "request-promise-native": "^1.0.8"
   }
 }
