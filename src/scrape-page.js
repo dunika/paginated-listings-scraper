@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const got = require('got');
 const cheerio = require('cheerio');
 
 const { buildExtractData } = require('./extract-data');
@@ -9,28 +9,18 @@ const getPage = async ({
   html: passedHtml,
   ...requestOptions
 } = {}) => {
-  try {
     if (passedHtml) {
       return {
         html: passedHtml,
         $: cheerio.load(passedHtml),
       };
     }
-    const { body: html, request: { uri: { href: resolvedUrl } } } = await request({
-      resolveWithFullResponse: true,
-      uri: url,
-      ...requestOptions,
-    });
+    const { body: html, url: resolvedUrl } = await got(url, requestOptions);
     if (loadCheerio) {
       const $ = cheerio.load(html);
       return { $, html, resolvedUrl };
     }
     return { html, resolvedUrl };
-  } catch (error) {
-    throw new Error(`Request error: ${url}
-      ${error.message}
-    `);
-  }
 };
 
 module.exports.getPage = getPage;
