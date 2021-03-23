@@ -1,6 +1,6 @@
 {
   "name": "paginated-listings-scraper",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Extract listings data from paginated web pages",
   "main": "src/index.js",
   "source": "src/index.js",
@@ -34,6 +34,6 @@
     "debug": "^3.2.7",
     "got": "^11.8.2",
     "lodash": "^4.17.21",
-    "user-agents": "^1.0.594"
+    "user-agents": "^1.0.599"
   }
 }
