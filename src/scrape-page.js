@@ -3,10 +3,10 @@ const cheerio = require('cheerio');
 const UserAgent = require('user-agents');
 
 const buildRequestOptions = ({ deviceCategory, headers, https, ...passedOptions } = {}) => {
-  const deviceCategory = passedOptions?.deviceCategory || 'desktop'
+  const category = deviceCategory || 'desktop'
 
   const userAgent = new UserAgent({
-    deviceCategory: deviceCategory,
+    deviceCategory: category,
   });
 
   const defaultRequestOptions = {
