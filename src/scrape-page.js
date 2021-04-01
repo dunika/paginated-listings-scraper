@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const UserAgent = require('user-agents');
 
 const buildRequestOptions = ({ deviceCategory, headers, https, ...passedOptions } = {}) => {
-  const category = deviceCategory || 'desktop'
+  const category = deviceCategory || 'desktop';
 
   const userAgent = new UserAgent({
     deviceCategory: category,
@@ -14,16 +14,18 @@ const buildRequestOptions = ({ deviceCategory, headers, https, ...passedOptions 
     timeout: 10000,
     https: {
       rejectUnauthorized: false,
-      ...https
+      ...https,
     },
     headers: {
       'user-agent': userAgent.toString(),
       'accept-language': 'en-US,en',
       ...headers,
     },
-    ...passedOptions
+    ...passedOptions,
   };
-}
+
+  return defaultRequestOptions;
+};
 
 const { buildExtractData } = require('./extract-data');
 
@@ -55,7 +57,7 @@ module.exports.scrapePage = async function scrapePage({
   html: passedHtml,
   requestOptions: passedRequestOptions,
 }) {
-  const requestOptions = buildRequestOptions(passedRequestOptions)
+  const requestOptions = buildRequestOptions(passedRequestOptions);
   const { html, resolvedUrl, $ } = await getPage({
     url,
     html: passedHtml,
